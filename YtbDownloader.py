@@ -32,7 +32,6 @@ if link:
 class SocialMediaDownloader:
     """
     Youtube downloader, PlayList Downloader
-
     """
     if pl:
         plname = f"PlayList_{''.join(random.sample(string.ascii_letters+string.digits, 8))}"
