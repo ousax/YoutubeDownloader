@@ -1,2 +1,2 @@
 # YoutubeDownloader
-Simple script to downloade single video, playlists from youtube
+Simple script to download single video, playlists from youtube
