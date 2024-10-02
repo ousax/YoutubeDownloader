@@ -27,11 +27,12 @@ while pl and (not mp3_mp4 or mp3_mp4 not in ["a", "v"]):
 while pl and int(user_format) not in [0, 1, 2, 3]:
     user_format = int(input(Fore.GREEN+"Type [(0)-1080], (1)-720...]"+Fore.RESET))
 if link:
-    if "youtu.be" in link:
+    if "youtu.be" in link: # mobile version 
         link = f"https://www.youtube.com/watch?v={link.split('/')[-1]}"
 class SocialMediaDownloader:
     """
     Youtube downloader, PlayList Downloader
+    twitter: @0lifeisalie
     """
     if pl:
         plname = f"PlayList_{''.join(random.sample(string.ascii_letters+string.digits, 8))}"
