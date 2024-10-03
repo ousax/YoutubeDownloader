@@ -171,7 +171,6 @@ class SocialMediaDownloader:
                 finalUrl = LoadFinalUrl['dlink']
                 title = title+".mp4" if LoadFinalUrl['ftype'] == "mp4" else title+".mp3"
                 title  = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
-                print(Fore.GREEN,f"[{item_number}] [{title}] Downloaded successfully", Fore.RESET)
                 with requests.get(finalUrl, headers={"UserAgent":useragent}, stream = True) as response:
                                 try:
                                     chunk = 5 * (1024*1024)
@@ -179,6 +178,7 @@ class SocialMediaDownloader:
                                     with open(title, 'wb') as file:
                                         for chunk in response.iter_content(chunk_size=chunk):
                                             file.write(chunk)
+                                    print(Fore.GREEN,f"[{item_number}] [{title}] Downloaded successfully", Fore.RESET)
                                 except requests.HTTPError as e:
                                         print(Fore.RED, f"HTTPError: ", e,Fore.RESET)
                                 except Exception as e:
