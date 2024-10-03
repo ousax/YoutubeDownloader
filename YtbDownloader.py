@@ -2,38 +2,41 @@ import requests
 import os
 import sys
 import argparse
-from colorama import Fore
-import re
 import random
 import json
 import math
 import string
+from colorama import Fore
 from bs4 import BeautifulSoup as bs
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", metavar="The link", help="The link of the video.", type=str)
 parser.add_argument("-r", metavar="Random UserAgent", help="Using a random UserAgent", type=str, choices=["y","n"], default="y")
 parser.add_argument("-pl", metavar="Playlist", help="Youtube Playlist", type=str)
-parser.add_argument("-mtype", metavar="Media type", help = "Type [(v)ideo, (a)udio]", choices=['v', 'a'], type=str)
-parser.add_argument("-qlt", metavar="Video/Audio Quality", help="Media quality available choices [0, 1, 2, 3 ]", type=int)
-parser.add_argument("-c", metavar="Copy", help="Copy the media to another location", type=str, choices=['y', 'n'])
+parser.add_argument("-mtype", metavar="Media type", help = "Type [(v)ideo, (a)udio]", choices=['v', 'a'], type=str, default="a")
+parser.add_argument("-qlt", metavar="Video/Audio Quality", help="Media quality available choices [0, 1, 2, 3 ]", type=int, default=0)
+parser.add_argument("-c", metavar="Move", help="Move the media to another location", type=str, default="n")
 args = parser.parse_args()
 link = args.l
 pl = args.pl
 mp3_mp4 = args.mtype
 user_format = int(args.qlt) # the quality of the media 1080, 720, 480 ...
 c_p = args.c
-while link==False and pl == False:
-     link = input(Fore.GREEN+"Enter the youtube link: "+Fore.RESET)
-while pl and (not mp3_mp4 or mp3_mp4 not in ["a", "v"]):
-    mp3_mp4 = input(Fore.GREEN+"Type (a) for mp3 , v for mp4: "+Fore.RESET)
-while pl and int(user_format) not in [0, 1, 2, 3]:
-    user_format = int(input(Fore.GREEN+"Type [(0)-1080], (1)-720...]"+Fore.RESET))
+while not link and not pl:
+    link = input(Fore.GREEN+"Enter the youtube link: "+Fore.RESET)
+
 if link:
     if "youtu.be" in link: # mobile version 
         link = f"https://www.youtube.com/watch?v={link.split('/')[-1]}"
+while c_p not in ["n", "stop"] and os.path.exists(c_p) != True:
+     print(Fore.RED+f"{c_p} doesn't exitst"+Fore.RESET)
+     c_p = input(Fore.GREEN+"Enter the destination path: "+Fore.RESET)
+print("Playlist: ", pl)
+print("Link: ", link)
+print(mp3_mp4)
+print(user_format)
 class SocialMediaDownloader:
     """
-    Youtube downloader, PlayList Downloader
+    Youtube downloader
     twitter: @0lifeizalie
     """
     if pl:
@@ -167,8 +170,8 @@ class SocialMediaDownloader:
                 LoadFinalUrl = json.loads(ConverterReq.text)
                 finalUrl = LoadFinalUrl['dlink']
                 title = title+".mp4" if LoadFinalUrl['ftype'] == "mp4" else title+".mp3"
-                title  = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_') # with these characters errors occured while creating the filename
-                print(f"Trying {item}")
+                title  = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
+                print(Fore.GREEN,f"[{item_number}] [{title}] Downloaded successfully", Fore.RESET)
                 with requests.get(finalUrl, headers={"UserAgent":useragent}, stream = True) as response:
                                 try:
                                     chunk = 5 * (1024*1024)
@@ -176,11 +179,33 @@ class SocialMediaDownloader:
                                     with open(title, 'wb') as file:
                                         for chunk in response.iter_content(chunk_size=chunk):
                                             file.write(chunk)
-                                        print(Fore.GREEN,"Downloaded successfully", Fore.RESET)
                                 except requests.HTTPError as e:
                                         print(Fore.RED, f"HTTPError: ", e,Fore.RESET)
                                 except Exception as e:
                                         print(Fore.RED, f"An Error occured: ", e, Fore.RESET)
+                if args.l and c_p not in ['n', 'stop'] or args.c == None:
+                    try:
+                        if sys.platform == "linux":
+                            os.system(f"mv {title} {c_p if c_p not in ['n', 'stop'] and os.path.exists(c_p) else '/sdcard' if os.path.exists('/sdcard') else '../'}")
+                            print("Done !")
+                        else:
+                            os.system(f"move {title} {c_p if c_p not in ['n', 'stop'] else '..'}")
+                            print("Done !")
+                    except Exception as ErrorMoving:
+                         print(Fore.RED+f"ErrorMoving: {ErrorMoving}"+Fore.RESET)
+        if args.pl and c_p not in ['n', 'stop'] or args.c == None:
+            try:
+                plname = os.getcwd().split('/')[-1] if sys.platform == 'linux' else os.getcwd().split('\\')[-1]
+                print(f"Playlist [{plname}] has been downloaded successfully")
+                if sys.platform == "linux":
+                    dest = '/sdcard' if os.path.exists('/sdcard') and c_p in ['n', 'stop'] else c_p if os.path.exists(c_p) else '../'
+                    os.system(f"cd ../ ; mv {plname} {dest}")
+                else:
+                        os.chdir("..")
+                        dest = c_p if os.path.exists(c_p) else ".."
+                        os.system(f"move {plname} {dest}")
+            except Exception as plnameExp:
+                        print(Fore.RED+f"plnameExp: {plnameExp}"+Fore.RESET)         
         extractor = json.loads(AjaxReq.text)['extractor']
 try:
     SocialMediaDownloader.Extractor()
