@@ -15,11 +15,13 @@ parser.add_argument("-r", metavar="Random UserAgent", help="Using a random UserA
 parser.add_argument("-pl", metavar="Playlist", help="Youtube Playlist", type=str)
 parser.add_argument("-mtype", metavar="Media type", help = "Type [(v)ideo, (a)udio]", choices=['v', 'a'], type=str)
 parser.add_argument("-qlt", metavar="Video/Audio Quality", help="Media quality available choices [0, 1, 2, 3 ]", type=int)
+parser.add_argument("-c", metavar="Copy", help="Copy the media to another location", type=str, choices=['y', 'n'])
 args = parser.parse_args()
 link = args.l
 pl = args.pl
 mp3_mp4 = args.mtype
 user_format = int(args.qlt) # the quality of the media 1080, 720, 480 ...
+c_p = args.c
 while link==False and pl == False:
      link = input(Fore.GREEN+"Enter the youtube link: "+Fore.RESET)
 while pl and (not mp3_mp4 or mp3_mp4 not in ["a", "v"]):
