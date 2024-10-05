@@ -6,3 +6,7 @@ using [https://www.y2mate.com] [https://cable.ayra.ch]
 requests
 bs4 
 colorama
+
+# Installation 
+git clone https://github.com/ousax/YoutubeDownloader.git
+cd YoutubeDownload ; pip -m install requirements ; chmod +x YtbDownloader.py
