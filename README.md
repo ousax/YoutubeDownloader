@@ -9,7 +9,7 @@ colorama
 
 # Installation 
 git clone https://github.com/ousax/YoutubeDownloader.git ;
-cd YoutubeDownloader ; pip3 -m install requirements ; chmod +x YtbDownloader.py
+cd YoutubeDownloader ; pip3 -m install Requirements ; chmod +x YtbDownloader.py
 
 # Usage
 python YtbDownloader.py -l v -mtype -qlt  0 -r y -c "/copy/to/folder"
