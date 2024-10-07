@@ -6,6 +6,8 @@ import random
 import json
 import math
 import string
+import re
+from string import punctuation
 from colorama import Fore
 from bs4 import BeautifulSoup as bs
 parser = argparse.ArgumentParser()
@@ -23,17 +25,12 @@ user_format = int(args.qlt) # the quality of the media 1080, 720, 480 ...
 c_p = args.c
 while not link and not pl:
     link = input(Fore.GREEN+"Enter the youtube link: "+Fore.RESET)
-
 if link:
     if "youtu.be" in link: # mobile version 
         link = f"https://www.youtube.com/watch?v={link.split('/')[-1]}"
 while c_p not in ["n", "stop"] and os.path.exists(c_p) != True:
      print(Fore.RED+f"{c_p} doesn't exitst"+Fore.RESET)
      c_p = input(Fore.GREEN+"Enter the destination path: "+Fore.RESET)
-print("Playlist: ", pl)
-print("Link: ", link)
-print(mp3_mp4)
-print(user_format)
 class SocialMediaDownloader:
     """
     Youtube downloader
@@ -77,6 +74,27 @@ class SocialMediaDownloader:
         useragent = random.choice(ua)
     def Extractor():
         Link = []
+        def Twitter():
+            try:
+                twitterJson = json.loads(AjaxReq.text)
+                title = twitterJson["title"]
+                qlty = [_ for _ in twitterJson['links']['video']][-1]
+                with requests.get(qlty['url'], headers={"UserAgent":useragent}, stream = True) as response:
+                    try:
+                        chunk = 5 * (1024*1024)
+                        response.raise_for_status()
+                        with open(title, 'wb') as file:
+                            for chunk in response.iter_content(chunk_size=chunk):
+                                file.write(chunk)
+                                if sys.platform == "linux" and c_p not in ["n", 'stop']:
+                                    os.system(f"mv {title} {c_p if c_p not in ['n', 'stop'] and os.path.exists(c_p) else '/sdcard' if os.path.exists('/sdcard') else '../'}")
+                                    print("Done !")
+                    except Exception as E:
+                        print(Fore.RED, f"DownloadException: {E}",Fore.RESET)
+                        exit()
+            except Exception as TwitterE:
+                print(Fore.RED+f"TwitterE: {TwitterE}"+Fore.RESET)
+            exit()
         def PlayList_():
             links_ = []
             playlist = f"https://cable.ayra.ch/ytdl/playlist.php?url={pl}&API=1"
@@ -103,43 +121,38 @@ class SocialMediaDownloader:
                 exit(f"Exiting {Fore.RESET}")
         else:
             Link.append(args.l)
+
         for item_number, item in enumerate(Link):# start the for loop from here
             if item_number > 0 and args.l:
                 break
             link = item
-            ajax = "https://www.y2mate.com/mates/en948/analyzeV2/ajax"
+            ajax = "https://www.y2mate.com/mates/en948/analyzeV2/ajax" 
             ajaxHeaders = {
                 "Accept":"*/*",
                 "Accept-Language":"en,us;q=0.9",
                 "UserAgent":useragent,
                 "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
                 "Origin":"https://www.y2mate.com",
-                "Referer":"https://www.y2mate.com/en948"
+                "Referer":"https://www.y2mate.com/en948" #if not twitter_re else "https://www.y2mate.com/en/twitter-downloader" 
             }
+            print("Link: ", link)
             payload = {
                 "k_query":link,
-                "k_page":"home",
+                "k_page":"home",# if not twitter_re else "Twitter",
                 "hl":"en",
                 "q_auto":0
             }
             AjaxReq = requests.post(ajax, data=payload, headers=ajaxHeaders, timeout=4) # get informations about the video
+            # twitter links "https://x.com/i/status/1808526518320255017"
+            twitter_re = re.match(r"https://(x|twitter)\.com/[i|a-zA-Z0-9_.]+/status/[0-9]{19}", Link[0])
+            if twitter_re:
+                Twitter()
             headers = {
                 "UserAgent":useragent
             }
             LoadYoutube = json.loads(AjaxReq.text)
             vid = LoadYoutube['vid']
             title = LoadYoutube["title"]
-            """if not mp3_mp4:
-                mp3_mp4 = str(input(f"{Fore.GREEN} [v]video or a[udio] {Fore.RESET}: "))
-            else:
-                mp3_mp4 = args.mt
-            if not user_format:
-                user_format = args.qt"""
-            #user_format, mp3_mp4 = int(args.qt), args.mt
-            #while not mp3_mp4 or mp3_mp4 not in ["a", "v"]:
-            #    mp3_mp4 = input(Fore.GREEN+"Type (a) audio, (v) mp4: "+Fore.RESET)
-            #while not  user_format or user_format not in [0, 1, 2, 3]:
-            #    user_format = int(input(Fore.GREEN+"Type the id of the format [0, 1, 2, 3]: "+Fore.RESET))
             mp3_mp4 = args.mtype
             user_format = int(args.qlt)
             racine_mp4 = LoadYoutube["links"]['mp4']
@@ -154,6 +167,7 @@ class SocialMediaDownloader:
             while math.fabs(user_format) > len(available_formats):
                 display()
                 user_format = int(input("Enter the ID for the video: "))
+            print(AjaxReq.text) # twitter videos
             converterUrl = "https://www.y2mate.com/mates/convertV2/index"
             payload_converter = {
                 "vid":vid,
@@ -207,6 +221,7 @@ class SocialMediaDownloader:
             except Exception as plnameExp:
                         print(Fore.RED+f"plnameExp: {plnameExp}"+Fore.RESET)         
         extractor = json.loads(AjaxReq.text)['extractor']
+        print(extractor)
 try:
     SocialMediaDownloader.Extractor()
 except KeyboardInterrupt:
