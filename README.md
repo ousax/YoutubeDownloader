@@ -10,7 +10,7 @@ using
 - colorama
 
 # Installation 
-git clone https://github.com/ousax/YoutubeDownloader.git ;
+> git clone https://github.com/ousax/YoutubeDownloader.git ;
 cd YoutubeDownloader ; pip install -r Requirements ; chmod +x YtbDownloader.py
 
 # Usage
