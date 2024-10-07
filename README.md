@@ -1,11 +1,13 @@
 # YoutubeDownloader
-Simple script to download single videos , playlists from youtube 
-using [https://www.y2mate.com] [https://cable.ayra.ch]
+Simple script to download single videos , playlists from youtube, Twitter, #### add tiktok  
+using 
+- [https://www.y2mate.com]
+- [https://cable.ayra.ch]
 
 # Requirements
-requests
-bs4 
-colorama
+- requests
+- bs4 
+- colorama
 
 # Installation 
 git clone https://github.com/ousax/YoutubeDownloader.git ;
@@ -15,6 +17,9 @@ cd YoutubeDownloader ; pip install -r Requirements ; chmod +x YtbDownloader.py
 python YtbDownloader.py -l "link" -mtype "v" -qlt 0 -r y -c "/copy/to/folder"
 
 python YtbDownloader.py -pl "link" -mtype "a" -qlt 1 -r y -c "/copy/to/folder"
+
+python YtbDownloader.py -pl "twitter link" -mtype "a" -qlt 1 -r y -c "/copy/to/folder"
+
 - l the link of the video [type=str]
 
 - pl the playlist [type=str]
