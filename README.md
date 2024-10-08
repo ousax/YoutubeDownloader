@@ -5,7 +5,8 @@ Simple script to download single videos , playlists from youtube, Twitter using
 
 # Requirements
 - requests
-- bs4 
+- bs4
+- tqdm
 - colorama
 
 # Installation 
