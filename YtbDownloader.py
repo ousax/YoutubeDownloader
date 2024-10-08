@@ -7,9 +7,12 @@ import json
 import math
 import string
 import re
+import time
+from tqdm import tqdm
 from string import punctuation
-from colorama import Fore
+from colorama import Fore, init
 from bs4 import BeautifulSoup as bs
+init(autoreset=True)
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", metavar="The link", help="The link of the video.", type=str)
 parser.add_argument("-r", metavar="Random UserAgent", help="Using a random UserAgent", type=str, choices=["y","n"], default="y")
@@ -24,13 +27,13 @@ mp3_mp4 = args.mtype
 user_format = int(args.qlt) # the quality of the media 1080, 720, 480 ...
 c_p = args.c
 while not link and not pl:
-    link = input(Fore.GREEN+"Enter the youtube link: "+Fore.RESET)
+    link = input(Fore.GREEN+"Enter the youtube link: ")
 if link:
     if "youtu.be" in link: # mobile version 
         link = f"https://www.youtube.com/watch?v={link.split('/')[-1]}"
 while c_p not in ["n", "stop"] and os.path.exists(c_p) != True:
-     print(Fore.RED+f"{c_p} doesn't exitst"+Fore.RESET)
-     c_p = input(Fore.GREEN+"Enter the destination path: "+Fore.RESET)
+     print(Fore.RED+f"{c_p} doesn't exitst")
+     c_p = input(Fore.GREEN+"Enter the destination path: ")
 class SocialMediaDownloader:
     """
     Youtube downloader
@@ -43,7 +46,7 @@ class SocialMediaDownloader:
         except FileExistsError:
             pass
         except Exception as ErrorCreatingPlaylist:
-            print(Fore.RED,f"ErrorCreatingPlaylist: {ErrorCreatingPlaylist}",Fore.RESET)
+            print(Fore.RED,f"ErrorCreatingPlaylist: {ErrorCreatingPlaylist}")
             pass
         try:
             os.chdir(plname)
@@ -79,21 +82,24 @@ class SocialMediaDownloader:
                 twitterJson = json.loads(AjaxReq.text)
                 title = twitterJson["title"]
                 qlty = [_ for _ in twitterJson['links']['video']][-1]
-                with requests.get(qlty['url'], headers={"UserAgent":useragent}, stream = True) as response:
-                    try:
-                        chunk = 5 * (1024*1024)
+                try:
+                    finalUrl = qlty['url']
+                    file_size = int(requests.head(finalUrl).headers['Content-Length'])
+                    with requests.get(finalUrl, stream=True) as response:
                         response.raise_for_status()
                         with open(title, 'wb') as file:
-                            for chunk in response.iter_content(chunk_size=chunk):
-                                file.write(chunk)
-                                if sys.platform == "linux" and c_p not in ["n", 'stop']:
-                                    os.system(f"mv {title} {c_p if c_p not in ['n', 'stop'] and os.path.exists(c_p) else '/sdcard' if os.path.exists('/sdcard') else '../'}")
-                                    print("Done !")
-                    except Exception as E:
-                        print(Fore.RED, f"DownloadException: {E}",Fore.RESET)
-                        exit()
+                            with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading... ') as bar:
+                                for chunk in response.iter_content(chunk_size=8192):
+                                    file.write(chunk)
+                                    bar.update(len(chunk))
+                            if sys.platform == "linux" and c_p not in ["n", 'stop']:
+                                os.system(f"mv {title} {c_p if c_p not in ['n', 'stop'] and os.path.exists(c_p) else '/sdcard' if os.path.exists('/sdcard') else '../'}")
+                                print("Done !")
+                except Exception as E:
+                    print(Fore.RED, f"DownloadException: {E}")
+                    exit()
             except Exception as TwitterE:
-                print(Fore.RED+f"TwitterE: {TwitterE}"+Fore.RESET)
+                print(Fore.RED+f"TwitterE: {TwitterE}")
             exit()
         def PlayList_():
             links_ = []
@@ -112,13 +118,13 @@ class SocialMediaDownloader:
                 links_ = [_.replace("\ufeff", "").strip() for _ in link.split('\n')]
             if not getPlaylist.ok:
                 print(Fore.red+getPlaylist.status_code)
-            print(Fore.CYAN, f"Extracted {len(links_)} link(s)",Fore.RESET)
+            print(Fore.CYAN, f"Extracted {len(links_)} link(s)")
             return links_
         if pl:
             Link = PlayList_()
             if not len(Link) != 0:
                 print(Fore.RED, f"The playlist is empty", Fore.RED)
-                exit(f"Exiting {Fore.RESET}")
+                exit(f"Exiting ")
         else:
             Link.append(args.l)
 
@@ -135,7 +141,7 @@ class SocialMediaDownloader:
                 "Origin":"https://www.y2mate.com",
                 "Referer":"https://www.y2mate.com/en948" #if not twitter_re else "https://www.y2mate.com/en/twitter-downloader" 
             }
-            print("Link: ", link)
+            #print("Link: ", link)
             payload = {
                 "k_query":link,
                 "k_page":"home",# if not twitter_re else "Twitter",
@@ -158,16 +164,18 @@ class SocialMediaDownloader:
             racine_mp4 = LoadYoutube["links"]['mp4']
             racine_mp3 = LoadYoutube["links"]['mp3']
             available_formats = [[racine_mp4[_]['q'], racine_mp4[_]['k']] for _ in LoadYoutube["links"]['mp4']] if mp3_mp4 == "v" else [[racine_mp3[_]['q'], racine_mp3[_]['k']] for _ in racine_mp3]
-            def display(): 
+            def Display(): 
                 for i, x in enumerate(available_formats):
-                    print("ID: ", Fore.GREEN, i, Fore.BLUE, x[0], Fore.RESET)
+                    print("ID: ", Fore.GREEN, i, Fore.BLUE, x[0])
             #if not pl:
              #   display()
               #  user_format = int(input("Enter the ID for the video: "))
             while math.fabs(user_format) > len(available_formats):
-                display()
+                Display()
                 user_format = int(input("Enter the ID for the video: "))
-            print(AjaxReq.text) # twitter videos
+            #print(AjaxReq.text) # twitter videos
+            #print(AjaxReq.text[''])
+            #exit()
             converterUrl = "https://www.y2mate.com/mates/convertV2/index"
             payload_converter = {
                 "vid":vid,
@@ -185,18 +193,14 @@ class SocialMediaDownloader:
                 finalUrl = LoadFinalUrl['dlink']
                 title = title+".mp4" if LoadFinalUrl['ftype'] == "mp4" else title+".mp3"
                 title  = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
-                with requests.get(finalUrl, headers={"UserAgent":useragent}, stream = True) as response:
-                                try:
-                                    chunk = 5 * (1024*1024)
-                                    response.raise_for_status()
-                                    with open(title, 'wb') as file:
-                                        for chunk in response.iter_content(chunk_size=chunk):
-                                            file.write(chunk)
-                                    print(Fore.GREEN,f"[{item_number}] [{title}] Downloaded successfully", Fore.RESET)
-                                except requests.HTTPError as e:
-                                        print(Fore.RED, f"HTTPError: ", e,Fore.RESET)
-                                except Exception as e:
-                                        print(Fore.RED, f"An Error occured: ", e, Fore.RESET)
+                file_size = int(requests.head(finalUrl).headers['Content-Length'])
+                with requests.get(finalUrl, stream=True) as response:
+                    response.raise_for_status()
+                    with open(title, 'wb') as file:
+                        with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading... ') as bar:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                file.write(chunk)
+                                bar.update(len(chunk))
                 if args.l and c_p not in ['n', 'stop'] or args.c == None:
                     try:
                         if sys.platform == "linux":
@@ -206,11 +210,11 @@ class SocialMediaDownloader:
                             os.system(f"move {title} {c_p if c_p not in ['n', 'stop'] else '..'}")
                             print("Done !")
                     except Exception as ErrorMoving:
-                         print(Fore.RED+f"ErrorMoving: {ErrorMoving}"+Fore.RESET)
+                         print(Fore.RED+f"ErrorMoving: {ErrorMoving}")
         if args.pl and c_p not in ['n', 'stop'] or args.c == None:
             try:
                 plname = os.getcwd().split('/')[-1] if sys.platform == 'linux' else os.getcwd().split('\\')[-1]
-                print(f"Playlist [{plname}] has been downloaded successfully")
+                print(Fore.GREEN+f"Playlist [{plname}] has been downloaded successfully")
                 if sys.platform == "linux":
                     dest = '/sdcard' if os.path.exists('/sdcard') and c_p in ['n', 'stop'] else c_p if os.path.exists(c_p) else '../'
                     os.system(f"cd ../ ; mv {plname} {dest}")
@@ -219,13 +223,12 @@ class SocialMediaDownloader:
                         dest = c_p if os.path.exists(c_p) else ".."
                         os.system(f"move {plname} {dest}")
             except Exception as plnameExp:
-                        print(Fore.RED+f"plnameExp: {plnameExp}"+Fore.RESET)         
+                        print(Fore.RED+f"plnameExp: {plnameExp}")         
         extractor = json.loads(AjaxReq.text)['extractor']
-        print(extractor)
 try:
     SocialMediaDownloader.Extractor()
 except KeyboardInterrupt:
-    print(Fore.YELLOW,"\nCanceled by the user", Fore.RESET)
+    print(Fore.YELLOW,"\nCanceled by the user",)
     exit(0)
 except Exception as ErrorOccured:
-    exit(f"{Fore.RED} ErrorOccured: {ErrorOccured} {Fore.RESET}")
+    exit(f"{Fore.RED} ErrorOccured: {ErrorOccured} ")
