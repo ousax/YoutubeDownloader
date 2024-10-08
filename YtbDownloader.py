@@ -228,7 +228,7 @@ class SocialMediaDownloader:
 try:
     SocialMediaDownloader.Extractor()
 except KeyboardInterrupt:
-    print(Fore.YELLOW,"\nCanceled by the user",)
+    print(Fore.YELLOW,"\nCanceled by the user")
     exit(0)
 except Exception as ErrorOccured:
-    exit(f"{Fore.RED} ErrorOccured: {ErrorOccured} ")
+    exit(f"{Fore.RED} ErrorOccured: {ErrorOccured}")
