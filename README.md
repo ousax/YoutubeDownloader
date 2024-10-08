@@ -11,7 +11,7 @@ Simple script to download single videos , playlists from youtube, Twitter using
 
 # Installation 
 > git clone https://github.com/ousax/YoutubeDownloader.git ;
-cd YoutubeDownloader ; pip install -r Requirements ; chmod +x YtbDownloader.py ; python YtbDownloader.py -h
+cd YoutubeDownloader ; pip install -r Requirements ; chmod +x YtbDownloader.py 
 # Usage
 **python YtbDownloader.py -l "link" -mtype "v" -qlt 0 -r y -c "/copy/to/folder"**
 
