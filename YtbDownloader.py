@@ -29,7 +29,7 @@ c_p = args.c
 while not link and not pl:
     link = input(Fore.GREEN+"Enter the youtube link: ")
 if link:
-    if "youtu.be" in link: # mobile version 
+    if "youtu.be" in link: # mobile version
         link = f"https://www.youtube.com/watch?v={link.split('/')[-1]}"
 while c_p not in ["n", "stop"] and os.path.exists(c_p) != True:
      print(Fore.RED+f"{c_p} doesn't exitst")
@@ -54,7 +54,7 @@ class SocialMediaDownloader:
             pass
     global Youtube, YTBConverter, YTBConverter, Facebook, Tiktok, Instagram, Twitter, useragent, AjaxReq
     Youtube = "https://www.y2mate.com/en858/download-youtube"
-    YTBConverter = "https://www.y2mate.com/en858/conver-youtube" 
+    YTBConverter = "https://www.y2mate.com/en858/conver-youtube"
     YTB2MP3 = "https://www.y2mate.com/en858/youtube-mp3"
     Instagram =  "https://www.y2mate.com/en/instagram-downloader"
     Facebook = "https://www.y2mate.com/en/facebook-downloader"
@@ -81,6 +81,9 @@ class SocialMediaDownloader:
             try:
                 twitterJson = json.loads(AjaxReq.text)
                 title = twitterJson["title"]
+                title = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
+                title = title+".mp4" if title.endswith('.') else title+"mp4"
+                print(title)
                 qlty = [_ for _ in twitterJson['links']['video']][-1]
                 try:
                     finalUrl = qlty['url']
@@ -132,14 +135,14 @@ class SocialMediaDownloader:
             if item_number > 0 and args.l:
                 break
             link = item
-            ajax = "https://www.y2mate.com/mates/en948/analyzeV2/ajax" 
+            ajax = "https://www.y2mate.com/mates/en948/analyzeV2/ajax"
             ajaxHeaders = {
                 "Accept":"*/*",
                 "Accept-Language":"en,us;q=0.9",
                 "UserAgent":useragent,
                 "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
                 "Origin":"https://www.y2mate.com",
-                "Referer":"https://www.y2mate.com/en948" #if not twitter_re else "https://www.y2mate.com/en/twitter-downloader" 
+                "Referer":"https://www.y2mate.com/en948" #if not twitter_re else "https://www.y2mate.com/en/twitter-downloader"
             }
             #print("Link: ", link)
             payload = {
@@ -164,7 +167,7 @@ class SocialMediaDownloader:
             racine_mp4 = LoadYoutube["links"]['mp4']
             racine_mp3 = LoadYoutube["links"]['mp3']
             available_formats = [[racine_mp4[_]['q'], racine_mp4[_]['k']] for _ in LoadYoutube["links"]['mp4']] if mp3_mp4 == "v" else [[racine_mp3[_]['q'], racine_mp3[_]['k']] for _ in racine_mp3]
-            def Display(): 
+            def Display():
                 for i, x in enumerate(available_formats):
                     print("ID: ", Fore.GREEN, i, Fore.BLUE, x[0])
             #if not pl:
@@ -223,7 +226,7 @@ class SocialMediaDownloader:
                         dest = c_p if os.path.exists(c_p) else ".."
                         os.system(f"move {plname} {dest}")
             except Exception as plnameExp:
-                        print(Fore.RED+f"plnameExp: {plnameExp}")         
+                        print(Fore.RED+f"plnameExp: {plnameExp}")
         extractor = json.loads(AjaxReq.text)['extractor']
 try:
     SocialMediaDownloader.Extractor()
