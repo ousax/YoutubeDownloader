@@ -3,14 +3,10 @@ import os
 import sys
 import argparse
 import random
-import json
-import math
-import string
-import re
+import json                                                import math                                                import string                                              import re
 import time
 from tqdm import tqdm
-from string import punctuation
-from colorama import Fore, init
+from string import punctuation                             from colorama import Fore, init
 from bs4 import BeautifulSoup as bs
 init(autoreset=True)
 parser = argparse.ArgumentParser()
@@ -82,7 +78,7 @@ class SocialMediaDownloader:
                 twitterJson = json.loads(AjaxReq.text)
                 title = twitterJson["title"]
                 title = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
-                title = title+".mp4" if title.endswith('.') else title+"mp4"
+                title = title+".mp4" if title.endswith('.') else title+".mp4"
                 print(title)
                 qlty = [_ for _ in twitterJson['links']['video']][-1]
                 try:
@@ -200,7 +196,7 @@ class SocialMediaDownloader:
                 with requests.get(finalUrl, stream=True) as response:
                     response.raise_for_status()
                     with open(title, 'wb') as file:
-                        with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading... ') as bar:
+                        with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading [{item_number}]... ') as bar:
                             for chunk in response.iter_content(chunk_size=8192):
                                 file.write(chunk)
                                 bar.update(len(chunk))
