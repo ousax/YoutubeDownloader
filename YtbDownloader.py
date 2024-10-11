@@ -81,6 +81,8 @@ class SocialMediaDownloader:
             try:
                 twitterJson = json.loads(AjaxReq.text)
                 title = twitterJson["title"]
+                title  = title.replace('|', '').replace('\\', '').replace('/', '').replace('*', '').replace(':', '').replace('>', '').replace('<', '').replace('|', '_').replace(")", "_").replace("(", "_").replace(' ', '_')
+                title = title+".mp4"
                 qlty = [_ for _ in twitterJson['links']['video']][-1]
                 try:
                     finalUrl = qlty['url']
@@ -88,7 +90,7 @@ class SocialMediaDownloader:
                     with requests.get(finalUrl, stream=True) as response:
                         response.raise_for_status()
                         with open(title, 'wb') as file:
-                            with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading... ') as bar:
+                            with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading ... ') as bar:
                                 for chunk in response.iter_content(chunk_size=8192):
                                     file.write(chunk)
                                     bar.update(len(chunk))
@@ -197,7 +199,7 @@ class SocialMediaDownloader:
                 with requests.get(finalUrl, stream=True) as response:
                     response.raise_for_status()
                     with open(title, 'wb') as file:
-                        with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading... ') as bar:
+                        with tqdm(total=file_size, unit='B', unit_scale=True, desc=f'{Fore.GREEN}Downloading [{item_number}]... ') as bar:
                             for chunk in response.iter_content(chunk_size=8192):
                                 file.write(chunk)
                                 bar.update(len(chunk))
