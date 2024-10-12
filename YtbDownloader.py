@@ -9,7 +9,6 @@ import string
 import re
 import time
 from tqdm import tqdm
-from string import punctuation
 from colorama import Fore, init
 from bs4 import BeautifulSoup as bs
 init(autoreset=True)
